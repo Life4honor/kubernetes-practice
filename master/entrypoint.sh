@@ -20,6 +20,6 @@ git clone https://github.com/kubernetes-sigs/kubespray.git
 chown -R vagrant:vagrant kubespray
 
 # Declare IPS for cluster
-declare -a IPS=(192.168.0.10 192.168.0.2 192.168.0.3 192.168.0.4)
+declare -a IPS=(192.168.0.2 192.168.0.3)
 echo ${IPS[@]} > node_ips
 
