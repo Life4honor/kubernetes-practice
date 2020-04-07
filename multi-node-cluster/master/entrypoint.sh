@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Enable ssh connection with passwd
-sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-systemctl restart sshd
-
 # Install python3
 apt-get update && apt-get install -y python3 python3-pip python3-venv
 
