@@ -16,10 +16,6 @@ chmod +x ./kubectl
 mv ./kubectl /usr/local/bin/kubectl
 
 # Install kubespray
-git clone https://github.com/kubernetes-sigs/kubespray.git
+git clone https://github.com/Life4honor/kubespray.git
 chown -R vagrant:vagrant kubespray
-
-# Declare IPS for cluster
-declare -a IPS=(192.168.0.2 192.168.0.3)
-echo ${IPS[@]} > node_ips
 
