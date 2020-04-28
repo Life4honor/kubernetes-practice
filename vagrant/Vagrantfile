@@ -1,14 +1,35 @@
+VM_IMAGE_BOX = "ubuntu/bionic64"
+
 Vagrant.configure("2") do |config|
 
-    config.vm.box = "ubuntu/bionic64"
-    config.vm.synced_folder ".", "/vagrant", disabled: true
-    config.vm.define "cluster" do |server|
-        server.vm.provider "virtualbox" do |vb|
-            vb.name = "cluster"
-            vb.memory = 8192
-            vb.cpus = 2
+    config.vm.provider "virtualbox" do |vb|
+        vb.memory = 2048
+        vb.cpus = 2
+    end
+
+    config.vm.define "master" do |master|
+        master.vm.box = VM_IMAGE_BOX
+        master.vm.host_name = "k8s-master"
+        master.vm.network "public_network", ip: "192.168.0.10", bridge: "en0: Wi-Fi (Wireless)"
+        master.vm.provision "ansible" do |ansible|
+            ansible.playbook = "k8s-master.yaml"
+            ansible.extra_vars = {
+                ansible_python_interpreter: "/usr/bin/python3",
+                node_ip: "192.168.0.10",
+            }
         end
-        server.vm.host_name = "cluster"
-        server.vm.network "public_network", ip: "192.168.0.10"
+    end
+
+    config.vm.define "worker" do |worker|
+        worker.vm.box = VM_IMAGE_BOX
+        worker.vm.host_name = "k8s-worker"
+        worker.vm.network "public_network", ip: "192.168.0.11", bridge: "en0: Wi-Fi (Wireless)"
+        worker.vm.provision "ansible" do |ansible|
+            ansible.playbook = "k8s-worker.yaml"
+            ansible.extra_vars = {
+                ansible_python_interpreter: "/usr/bin/python3",
+                node_ip: "192.168.0.11"
+            }
+        end
     end
 end

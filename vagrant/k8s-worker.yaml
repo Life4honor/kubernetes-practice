@@ -1,0 +1,87 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+
+    - name: Load br_netfilter
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: Enable iptables to see bridged traffic
+      sysctl: 
+        name: "{{ item }}"
+        sysctl_file: "/etc/sysctl.d/k8s.conf"
+        value: "1"
+      with_items:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+    
+    - name: Create docker json directory
+      file:
+        path: /etc/docker
+        state: directory  
+
+    - name: Write docker json configs
+      copy:
+        content: '{ "exec-opts": ["native.cgroupdriver=systemd"] }'
+        dest: "/etc/docker/daemon.json"  
+
+    - name: Install Docker
+      shell: curl -fsSL https://get.docker.com | sh
+      notify:
+        - docker start
+    
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+
+    - name: Install requirements
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - apt-transport-https
+        - curl
+
+    - name: Add an apt signing key for Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add apt repository for Kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes.list
+        
+    - name: Install Kubernetes
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - kubeadm
+        - kubectl
+        - kubelet
+    
+    - name: Copy join script
+      copy:
+        src: k8s-join.sh
+        dest: /tmp/k8s-join.sh
+
+    - name: Join cluster
+      command: "{{ item }}"
+      with_items:
+        - chmod +x /tmp/k8s-join.sh
+        - sh /tmp/k8s-join.sh
+      
+  handlers:
+    - name: docker start
+      service: 
+        name: docker 
+        state: started

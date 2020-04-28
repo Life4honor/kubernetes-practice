@@ -1,4 +1,3 @@
 resources:
-  - elasticsearch.yaml
-  - kibana.yaml
-  - metricbeat.yaml
+  - elasticsearch
+  - metricbeat
