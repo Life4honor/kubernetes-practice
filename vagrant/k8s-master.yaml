@@ -18,7 +18,12 @@
       with_items:
         - net.bridge.bridge-nf-call-iptables
         - net.bridge.bridge-nf-call-ip6tables
-        
+
+    - name: Create docker json directory
+      file:
+        path: /etc/docker
+        state: directory
+      
     - name: Write docker json configs
       copy:
         content: '{ "exec-opts": ["native.cgroupdriver=systemd"] }'
@@ -65,7 +70,7 @@
         - kubelet
 
     - name: Initialize the Kubernetes cluster using kubeadm
-      command: kubeadm init --apiserver-advertise-address="192.168.0.10" --apiserver-cert-extra-sans="192.168.0.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+      command: kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.0.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
 
     - name: Setup kubeconfig for vagrant user
       command: "{{ item }}"
