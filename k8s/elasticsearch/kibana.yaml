@@ -7,3 +7,6 @@ spec:
   count: 1
   elasticsearchRef:
     name: elasticsearch
+  podTemplate:
+    spec:
+      automountServiceAccountToken: true 
