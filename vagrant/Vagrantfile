@@ -1,6 +1,7 @@
 VM_IMAGE_BOX = "ubuntu/bionic64"
 
 Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
 
     config.vm.provider "virtualbox" do |vb|
         vb.memory = 2048
@@ -10,7 +11,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "k8s-master" do |master|
         master.vm.box = VM_IMAGE_BOX
         master.vm.host_name = "k8s-master"
-        master.vm.network "public_network", ip: "192.168.50.10", bridge: "en0: Wi-Fi (Wireless)"
+        master.vm.network "private_network", ip: "192.168.50.10"
         master.vm.provision "ansible" do |ansible|
             ansible.playbook = "k8s-master.yaml"
             ansible.extra_vars = {
@@ -23,7 +24,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "k8s-worker" do |worker|
         worker.vm.box = VM_IMAGE_BOX
         worker.vm.host_name = "k8s-worker"
-        worker.vm.network "public_network", ip: "192.168.50.11", bridge: "en0: Wi-Fi (Wireless)"
+        worker.vm.network "private_network", ip: "192.168.50.11"
         worker.vm.provision "ansible" do |ansible|
             ansible.playbook = "k8s-worker.yaml"
             ansible.extra_vars = {
